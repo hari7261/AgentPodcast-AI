@@ -1,0 +1,10 @@
+gradio
+gtts
+pyttsx3
+requests
+uuid
+google-generativeai
+edge-tts
+soundfile
+numpy
+scipy
