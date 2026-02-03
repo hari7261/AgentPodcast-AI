@@ -374,100 +374,155 @@ def get_speaker_info(speaker_count):
 
 # Create the Gradio interface
 def create_interface():
-    with gr.Blocks(title="🎙️ Multi-Speaker Podcast Generator", theme=gr.themes.Soft()) as demo:
-        gr.Markdown("# 🎙️ Multi-Speaker Podcast Generator")
-        gr.Markdown("Transform your text into engaging podcast conversations with multiple realistic voices!")
+    custom_css = """
+    .app-hero {
+        background: linear-gradient(135deg, #1b3a57 0%, #3f51b5 55%, #6a1b9a 100%);
+        color: #ffffff;
+        padding: 24px;
+        border-radius: 16px;
+        box-shadow: 0 18px 40px rgba(27, 58, 87, 0.2);
+    }
+    .app-hero h1 {
+        font-size: 2.1rem;
+        margin: 0 0 6px 0;
+    }
+    .app-hero p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    .panel {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 12px 25px rgba(15, 23, 42, 0.06);
+    }
+    .section-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 6px;
+    }
+    .status-pill {
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-weight: 600;
+    }
+    """
+    with gr.Blocks(
+        title="🎙️ Multi-Speaker Podcast Generator",
+        theme=gr.themes.Soft(),
+        css=custom_css
+    ) as demo:
+        gr.HTML(
+            """
+            <div class="app-hero">
+                <h1>🎙️ Multi-Speaker Podcast Generator</h1>
+                <p>Transform your text into engaging, studio-style conversations with multiple realistic voices.</p>
+            </div>
+            """
+        )
         
         with gr.Row():
             with gr.Column(scale=2):
-                # API Configuration
-                gr.Markdown("## 🔑 API Configuration")
-                api_key = gr.Textbox(
-                    label="Gemini API Key (Optional)",
-                    type="password",
-                    placeholder="Enter your Google Gemini API key...",
-                    info="Get a free key from https://aistudio.google.com/"
-                )
-                api_status = gr.Textbox(
-                    label="API Status",
-                    interactive=False,
-                    value="ℹ️ Add Gemini API key for AI-powered conversations"
-                )
-                
-                # Input Text
-                gr.Markdown("## 📝 Input Text")
-                input_text = gr.Textbox(
-                    label="Your Content",
-                    placeholder="Paste your article, blog post, or any text here...",
-                    lines=6
-                )
-                
-                # Configuration
-                gr.Markdown("## ⚙️ Configuration")
-                speaker_count = gr.Radio(
-                    label="Number of Speakers",
-                    choices=[1, 2, 3, 4],
-                    value=2,
-                    info="Choose how many voices for your podcast"
-                )
-                
-                use_gemini = gr.Checkbox(
-                    label="Use AI for conversation generation",
-                    value=True,
-                    info="Creates natural conversations (requires API key)"
-                )
-                
-                tts_engine = gr.Radio(
-                    label="Voice Engine",
-                    choices=[
-                        "Multi-Speaker (Edge TTS)",
-                        "gTTS (Online)", 
-                        "pyttsx3 (Offline)"
-                    ],
-                    value="Multi-Speaker (Edge TTS)" if EDGE_TTS_AVAILABLE else "gTTS (Online)",
-                    info="Edge TTS provides the most realistic conversations"
-                )
-                
-                # Generate Button
-                generate_btn = gr.Button(
-                    "🎙️ Generate Podcast",
-                    variant="primary",
-                    size="lg"
-                )
-            
+                with gr.Group(elem_classes="panel"):
+                    gr.Markdown("## 🔑 API Configuration", elem_classes="section-title")
+                    api_key = gr.Textbox(
+                        label="Gemini API Key (Optional)",
+                        type="password",
+                        placeholder="Enter your Google Gemini API key...",
+                        info="Get a free key from https://aistudio.google.com/"
+                    )
+                    api_status = gr.Textbox(
+                        label="API Status",
+                        interactive=False,
+                        value="ℹ️ Add Gemini API key for AI-powered conversations"
+                    )
+
+                with gr.Group(elem_classes="panel"):
+                    gr.Markdown("## 📝 Input Text", elem_classes="section-title")
+                    input_text = gr.Textbox(
+                        label="Your Content",
+                        placeholder="Paste your article, blog post, or any text here...",
+                        lines=6
+                    )
+
+                with gr.Group(elem_classes="panel"):
+                    gr.Markdown("## ⚙️ Configuration", elem_classes="section-title")
+                    speaker_count = gr.Radio(
+                        label="Number of Speakers",
+                        choices=[1, 2, 3, 4],
+                        value=2,
+                        info="Choose how many voices for your podcast"
+                    )
+
+                    use_gemini = gr.Checkbox(
+                        label="Use AI for conversation generation",
+                        value=True,
+                        info="Creates natural conversations (requires API key)"
+                    )
+
+                    tts_engine = gr.Radio(
+                        label="Voice Engine",
+                        choices=[
+                            "Multi-Speaker (Edge TTS)",
+                            "gTTS (Online)",
+                            "pyttsx3 (Offline)"
+                        ],
+                        value="Multi-Speaker (Edge TTS)" if EDGE_TTS_AVAILABLE else "gTTS (Online)",
+                        info="Edge TTS provides the most realistic conversations"
+                    )
+
+                    generate_btn = gr.Button(
+                        "🎙️ Generate Podcast",
+                        variant="primary",
+                        size="lg"
+                    )
+
             with gr.Column(scale=1):
-                # Speaker Info
-                speaker_info = gr.Markdown(
-                    get_speaker_info(2),
-                    label="Speaker Information"
-                )
+                with gr.Group(elem_classes="panel"):
+                    gr.Markdown("## 🎧 Speaker Lineup", elem_classes="section-title")
+                    speaker_info = gr.Markdown(
+                        get_speaker_info(2),
+                        label="Speaker Information"
+                    )
         
         # Status and Results
         status_msg = gr.HTML(
-            value="<div style='padding: 10px; background: #e3f2fd; border-radius: 5px; color: #1976d2;'>Ready to generate your podcast!</div>"
+            value=(
+                "<div class='status-pill' style='background: #e3f2fd; color: #1976d2;'>"
+                "Ready to generate your podcast!"
+                "</div>"
+            )
         )
         
-        with gr.Row():
-            audio_output = gr.Audio(
-                label="Generated Podcast",
+        with gr.Group(elem_classes="panel"):
+            gr.Markdown("## ✅ Results", elem_classes="section-title")
+            with gr.Row():
+                audio_output = gr.Audio(
+                    label="Generated Podcast",
+                    visible=False
+                )
+                download_btn = gr.DownloadButton(
+                    "⬇️ Download Podcast",
+                    visible=False
+                )
+
+            script_output = gr.Textbox(
+                label="Generated Script",
+                lines=8,
                 visible=False
             )
-            download_btn = gr.DownloadButton(
-                "⬇️ Download Podcast",
-                visible=False
-            )
-        
-        script_output = gr.Textbox(
-            label="Generated Script",
-            lines=8,
-            visible=False
-        )
         
         # Event handlers
         def update_status(message, success=True):
             color = "#1976d2" if success else "#d32f2f"
             bg_color = "#e3f2fd" if success else "#ffebee"
-            return f"<div style='padding: 10px; background: {bg_color}; border-radius: 5px; color: {color};'>{message}</div>"
+            return (
+                f"<div class='status-pill' style='background: {bg_color}; color: {color};'>"
+                f"{message}"
+                "</div>"
+            )
         
         def generate_podcast_wrapper(text, use_gemini, tts_engine, speaker_count, progress=gr.Progress()):
             audio_data, message, script = create_podcast(text, use_gemini, tts_engine, speaker_count, progress)
